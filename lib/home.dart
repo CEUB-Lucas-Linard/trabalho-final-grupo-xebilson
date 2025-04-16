@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:xebilson/contacts.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -12,16 +12,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Contact>? _contacts;
+  bool _permissionDenied = false;
 
-  List contacts = [
-    Contact(name: 'Caio', phoneNumber: '(61) 94002-8922'),
-    Contact(name: 'Matheus', phoneNumber: '(61) 91111-1111'),
-    Contact(name: 'Rafael', phoneNumber: '(61) 92222-2222'),
-    Contact(name: 'Kayke', phoneNumber: '(61) 93333-3333')
-    ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchContacts();
+  }
+
+  // Função assíncrona que pega os contatos
+  Future _fetchContacts() async {
+    if (!await FlutterContacts.requestPermission(readonly: true)) {
+      setState(() => _permissionDenied = true);
+    } else {
+      final contacts = await FlutterContacts.getContacts();
+      setState(() => _contacts = contacts);
+    }
+  }
 
   // TODO
-  void _add_contact() {
+  void _addContact() {
     setState(() {
       print("TODO");
     });
@@ -38,23 +49,38 @@ class _HomePageState extends State<HomePage> {
       body: Row(
         children: [
           Expanded(
-              child: ListView.builder(
-                  itemCount: contacts.length,
-                  itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                          onTap: (){},
+              child: Builder(
+                builder: (context) {
+                  if (_permissionDenied) return Center(child: Text('Permission denied'));
+                  if (_contacts == null) return Center(child: CircularProgressIndicator());
 
-                          leading: CircleAvatar(child: Icon(Icons.person)),
-                          title: Text(contacts[index].name),
-                          subtitle: Text(contacts[index].phoneNumber),
-                          trailing: Icon(Icons.more_vert),
-                      );
+                  return ListView.builder(
+                    itemCount: _contacts!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                            onTap: (){},
+
+                            leading: CircleAvatar(child: Icon(Icons.person)),
+                            title: Text(_contacts![index].displayName),
+                            trailing: CircleAvatar(
+                              backgroundColor: Colors.grey.shade200,
+                              child: IconButton(
+                                  icon: Icon(Icons.chevron_right),
+                                  onPressed: () async {
+                                    final fullContact = await FlutterContacts.getContact(_contacts![index].id);
+                                    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ContactPage(fullContact!)));
+                                  }),
+                            ),
+                        );
+                    }
+                    );
                   }
-                  ))
+              )
+          )
         ]
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _add_contact,
+        onPressed: _addContact,
         tooltip: 'Adicionar Contato',
         child: const Icon(Icons.add),
       ),
