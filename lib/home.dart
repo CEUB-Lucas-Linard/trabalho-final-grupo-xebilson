@@ -58,19 +58,18 @@ class _HomePageState extends State<HomePage> {
                     itemCount: _contacts!.length,
                     itemBuilder: (BuildContext context, int index) {
                         return ListTile(
-                            onTap: (){},
+                            onTap: () async {
+                              final fullContact = await FlutterContacts.getContact(_contacts![index].id);
+                              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ContactPage(fullContact!)));
+                            },
 
                             leading: CircleAvatar(child: Icon(Icons.person)),
                             title: Text(_contacts![index].displayName),
-                            trailing: CircleAvatar(
-                              backgroundColor: Colors.grey.shade200,
-                              child: IconButton(
-                                  icon: Icon(Icons.chevron_right),
-                                  onPressed: () async {
-                                    final fullContact = await FlutterContacts.getContact(_contacts![index].id);
-                                    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ContactPage(fullContact!)));
-                                  }),
-                            ),
+                            trailing: IconButton(
+                                icon: Icon(Icons.more_vert),
+                                onPressed: () async {
+                                  //TODO
+                                }),
                         );
                     }
                     );
