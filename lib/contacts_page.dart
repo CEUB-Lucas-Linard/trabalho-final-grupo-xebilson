@@ -43,6 +43,10 @@ class _ContactsPageState extends State<ContactsPage> {
     }
   }
 
+  void _addContact () {
+    print("TODO");
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_permissionDenied) {
@@ -64,9 +68,19 @@ class _ContactsPageState extends State<ContactsPage> {
     }).toList();
 
     return ListView.builder(
-      itemCount: filteredContacts.length,
+      itemCount: filteredContacts.length + 1,
       itemBuilder: (context, index) {
-        final contact = filteredContacts[index];
+        if (index == 0) {
+          return ListTile(
+            contentPadding: EdgeInsets.only(left: 34, top: 16, bottom: 16, right: 16),
+            leading: Icon(Icons.add_circle_outline, size: 30),
+            title: Text('Adicionar novo contato'),
+            onTap: (){
+              _addContact;
+            },
+          );
+        }
+        final contact = filteredContacts[index - 1];
 
         return ListTile(
           contentPadding: EdgeInsets.only(left: 20, top: 8, bottom: 8, right: 16),

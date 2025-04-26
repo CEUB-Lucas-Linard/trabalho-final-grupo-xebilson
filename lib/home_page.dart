@@ -17,11 +17,9 @@ class _HomePageState extends State<HomePage> {
 
   late List<Widget> _pages;
 
-  // TODO
-  void _addContact() {
-    setState(() {
-      print("TODO");
-    });
+  // TODO (Nav para página de discagem direta)
+  void _directCall() {
+    print("TODO");
   }
 
   @override
@@ -59,7 +57,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(color: Colors.white),
             ),
           ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
       body: _pages[currentPageIndex],
       bottomNavigationBar: NavigationBar(
@@ -88,9 +86,9 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addContact,
-        tooltip: 'Adicionar Contato',
-        child: const Icon(Icons.add),
+        onPressed: _directCall,
+        tooltip: 'Discagem rápida',
+        child: const Icon(Icons.dialpad),
       ),
     );
   }
