@@ -8,7 +8,7 @@ class FavoritesPage extends StatelessWidget {
     return Center(
       child: Text(
         'Favoritos ainda não implementado!',
-        style: TextStyle(fontSize: 24),
+        style: TextStyle(fontSize: 12),
       ),
     );
   }

@@ -17,10 +17,18 @@ class _HomePageState extends State<HomePage> {
     FavoritesPage(),
   ];
 
+  // TODO
+  void _addContact() {
+    setState(() {
+      print("TODO");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Contatos'),
       ),
       body: _pages[currentPageIndex],
@@ -43,6 +51,11 @@ class _HomePageState extends State<HomePage> {
             label: 'Favoritos',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addContact,
+        tooltip: 'Adicionar Contato',
+        child: const Icon(Icons.add),
       ),
     );
   }
