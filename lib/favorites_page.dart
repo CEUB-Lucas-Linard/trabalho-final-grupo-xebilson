@@ -12,4 +12,5 @@ class FavoritesPage extends StatelessWidget {
         style: TextStyle(fontSize: 12),
       ),
     );
+  }
 }
