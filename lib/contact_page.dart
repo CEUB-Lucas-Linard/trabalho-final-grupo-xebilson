@@ -17,7 +17,12 @@ class ContactPage extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 60,
-              child: Icon(Icons.person, size: 60),
+              backgroundImage: contact.photo != null
+                  ? MemoryImage(contact.photo!)
+                  : null,
+              child: contact.photo == null
+                  ? Icon(Icons.person, size: 60)
+                  : null,
             ),
             SizedBox(height: 12),
             Text(
