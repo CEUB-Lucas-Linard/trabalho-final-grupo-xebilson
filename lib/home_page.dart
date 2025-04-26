@@ -12,10 +12,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
 
-  final List<Widget> _pages = [
-    ContactsPage(),
-    FavoritesPage(),
-  ];
+  final TextEditingController searchController = TextEditingController();
+  String _searchQuery = '';
+
+  late List<Widget> _pages;
 
   // TODO
   void _addContact() {
@@ -25,12 +25,46 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _pages = [
+      ContactsPage(searchController: searchController),
+      FavoritesPage(),
+    ];
+    searchController.addListener(() {
+      setState(() {
+        _searchQuery = searchController.text.toLowerCase();
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Contatos'),
-      ),
+        toolbarHeight: 70,
+        toolbarOpacity: 1.0,
+        title: SizedBox(
+          height: 45,
+          child: TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search, color: Colors.white70),
+              hintText: 'Buscar...',
+              hintStyle: TextStyle(color: Colors.white70),
+              filled: true,
+              fillColor: Colors.white24,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide.none,
+                ),
+              ),
+            style: TextStyle(color: Colors.white),
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
       body: _pages[currentPageIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,

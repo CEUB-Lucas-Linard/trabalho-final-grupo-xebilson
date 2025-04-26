@@ -3,7 +3,10 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'contact_page.dart';
 
 class ContactsPage extends StatefulWidget {
-  const ContactsPage({super.key});
+  final TextEditingController searchController;
+
+  const ContactsPage({required this.searchController, Key? key}) : super(key: key);
+
 
   @override
   State<ContactsPage> createState() => _ContactsPageState();
@@ -17,13 +20,25 @@ class _ContactsPageState extends State<ContactsPage> {
   void initState() {
     super.initState();
     _fetchContacts();
+    widget.searchController.addListener(_onSearchChanged);
   }
+
+  void _onSearchChanged() {
+    setState(() {}); // Atualiza a tela quando o texto muda
+  }
+
+  @override
+  void dispose() {
+    widget.searchController.removeListener(_onSearchChanged);
+    super.dispose();
+  }
+
 
   Future<void> _fetchContacts() async {
     if (!await FlutterContacts.requestPermission(readonly: true)) {
       setState(() => _permissionDenied = true);
     } else {
-      final contacts = await FlutterContacts.getContacts();
+      final contacts = await FlutterContacts.getContacts(withPhoto: true);
       setState(() => _contacts = contacts);
     }
   }
@@ -41,15 +56,29 @@ class _ContactsPageState extends State<ContactsPage> {
       );
     }
 
+    final filteredContacts = _contacts!.where((contact) {
+      final name = contact.displayName.toLowerCase();
+      final query = widget.searchController.text.toLowerCase();
+      return name.contains(query);
+    }).toList();
+
     return ListView.builder(
-      itemCount: _contacts!.length,
+      itemCount: filteredContacts.length,
       itemBuilder: (context, index) {
-        final contact = _contacts![index];
+        final contact = filteredContacts[index];
 
         return ListTile(
-          leading: const CircleAvatar(
-            child: Icon(Icons.person),
-          ),
+          contentPadding: EdgeInsets.only(left: 20, top: 8, bottom: 8, right: 16),
+          leading: CircleAvatar(
+              radius: 30,
+              backgroundImage: contact.photo != null
+                  ? MemoryImage(contact.photo!)
+                  : null,
+              child: contact.photo == null
+                  ? Icon(Icons.person, size: 30)
+                  : null,
+            ),
+
           title: Text(contact.displayName),
           trailing: IconButton(
             icon: Icon(Icons.more_vert),
