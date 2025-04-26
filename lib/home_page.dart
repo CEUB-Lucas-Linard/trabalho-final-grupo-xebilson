@@ -13,7 +13,6 @@ class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
 
   final TextEditingController searchController = TextEditingController();
-  String _searchQuery = '';
 
   late List<Widget> _pages;
 
@@ -31,11 +30,6 @@ class _HomePageState extends State<HomePage> {
       ContactsPage(searchController: searchController),
       FavoritesPage(),
     ];
-    searchController.addListener(() {
-      setState(() {
-        _searchQuery = searchController.text.toLowerCase();
-      });
-    });
   }
 
   @override
