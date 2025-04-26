@@ -51,6 +51,13 @@ class _ContactsPageState extends State<ContactsPage> {
             child: Icon(Icons.person),
           ),
           title: Text(contact.displayName),
+          trailing: IconButton(
+            icon: Icon(Icons.more_vert),
+            onPressed: () {
+              // TODO (Favoritar, Excluir etc...)
+            },
+          ),
+
           onTap: () async {
             final fullContact = await FlutterContacts.getContact(contact.id);
             if (fullContact != null) {
