@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// TODO
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
 
@@ -11,5 +12,4 @@ class FavoritesPage extends StatelessWidget {
         style: TextStyle(fontSize: 12),
       ),
     );
-  }
 }
