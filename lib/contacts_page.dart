@@ -33,7 +33,7 @@ class _ContactsPageState extends State<ContactsPage> {
     super.dispose();
   }
 
-
+  // Função Assíncrona para pegar contatos
   Future<void> _fetchContacts() async {
     if (!await FlutterContacts.requestPermission(readonly: true)) {
       setState(() => _permissionDenied = true);
@@ -56,6 +56,7 @@ class _ContactsPageState extends State<ContactsPage> {
       );
     }
 
+    // Filtra os contatos com base na search bar
     final filteredContacts = _contacts!.where((contact) {
       final name = contact.displayName.toLowerCase();
       final query = widget.searchController.text.toLowerCase();
