@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// TODO (Trocar Temas, Sobre, Licenças...)
+
 class ConfigsPage extends StatefulWidget {
   const ConfigsPage({super.key});
 
