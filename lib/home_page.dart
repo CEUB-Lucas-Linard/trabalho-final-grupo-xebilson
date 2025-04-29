@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:xebilson/contacts_page.dart';
-import 'package:xebilson/favorites_page.dart';
 import 'package:xebilson/configs_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,8 +25,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pages = [
-      FavoritesPage(),
-      ContactsPage(searchController: searchController),
+      ContactsPage(searchController: searchController, showFavorites: true),
+      ContactsPage(searchController: searchController, showFavorites: false),
       ConfigsPage(),
     ];
   }
