@@ -11,8 +11,9 @@ class ContactPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
+          spacing: 16.0,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
@@ -24,46 +25,34 @@ class ContactPage extends StatelessWidget {
                   ? Icon(Icons.person, size: 60)
                   : null,
             ),
-            SizedBox(height: 12),
+
             Text(
               "${contact.name.first} ${contact.name.last}",
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
 
-            Divider(height: 32, thickness: 1),
+            //Divider(height: 32, thickness: 1),
 
+            // TODO
             if (contact.phones.isNotEmpty)
-              _buildInfoTile(Icons.phone, contact.phones.first.number),
-            if (contact.emails.isNotEmpty)
-              _buildInfoTile(Icons.email, contact.emails.first.address),
-            if (contact.addresses.isNotEmpty)
-              _buildInfoTile(Icons.home, contact.addresses.first.address),
-          ],
-        ),
-      ),
+              Card(
+                child: Column(
+                  children: contact.phones.map((phone) {
+                    return ListTile(
+                      leading: Icon(Icons.phone_outlined),
+                      title: Text(phone.number),
+                    );
+                  }).toList(),
+                ),
+              )
+            else
+              Container()
+          ]
+        )
+      )
     );
   }
-
-// Widget auxiliar para criar os itens da ficha
-  Widget _buildInfoTile(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey[700]),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
 }
