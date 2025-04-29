@@ -43,21 +43,17 @@ class _HomePageState extends State<HomePage> {
           child: TextField(
             controller: searchController,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search, color: Colors.white70),
+              prefixIcon: Icon(Icons.search),
               hintText: 'Buscar...',
-              hintStyle: TextStyle(color: Colors.white70),
               filled: true,
-              fillColor: Colors.white24,
               contentPadding: EdgeInsets.symmetric(horizontal: 16),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide.none,
                 ),
               ),
-            style: TextStyle(color: Colors.white),
             ),
           ),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
       body: _pages[currentPageIndex],
       bottomNavigationBar: NavigationBar(
