@@ -103,7 +103,7 @@ class _ContactPageState extends State<ContactPage> {
       ),
       body: Scrollbar(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
               spacing: 20.0,
@@ -158,6 +158,7 @@ class _ContactPageState extends State<ContactPage> {
                         }),
 
                         // E-mails
+                        Visibility(visible: (widget.contact.emails.isNotEmpty && widget.contact.phones.isNotEmpty), child: Divider()),
                         ...widget.contact.emails.asMap().entries.map((entry) {
                           final index = entry.key;
                           final email = entry.value;
@@ -170,6 +171,7 @@ class _ContactPageState extends State<ContactPage> {
                           );
                         }),
 
+                        Visibility(visible: widget.contact.addresses.isNotEmpty, child: Divider()),
                         // Endereços
                         ...widget.contact.addresses.asMap().entries.map((entry) {
                           final index = entry.key;
