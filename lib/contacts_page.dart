@@ -129,7 +129,7 @@ class _ContactsPageState extends State<ContactsPage> {
             ),
 
             onTap: () async {
-              final fullContact = await FlutterContacts.getContact(contact.id);
+              final fullContact = await FlutterContacts.getContact(contact.id, withAccounts: true);
               if (fullContact != null) {
                 await Navigator.of(context).push(
                   MaterialPageRoute(
