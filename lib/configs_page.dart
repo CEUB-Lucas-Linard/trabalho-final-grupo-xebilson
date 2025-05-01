@@ -12,6 +12,6 @@ class ConfigsPage extends StatefulWidget {
 class _ConfigsPageState extends State<ConfigsPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold();
   }
 }
