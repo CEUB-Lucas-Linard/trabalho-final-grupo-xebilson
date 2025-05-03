@@ -198,7 +198,26 @@ class _ContactPageState extends State<ContactPage> {
                             leading: index == 0 ? Icon(Icons.email_outlined, size: 26) : const SizedBox.shrink(),
                             title: Text(email.address),
                             subtitle: Text(_emailLabelToString[email.label] ?? 'Outro'),
-                            onTap: (){},
+
+                            onTap: () async {
+                              final Uri uri = Uri(scheme: 'mailto', path: email.address);
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text('Erro ao abrir o app de e-mail')
+                                    )
+                                );
+                              }
+                            },
+
+                            onLongPress: (){
+                              Clipboard.setData(ClipboardData(text: email.address));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("'${email.address}' copiado para a Área de Transferência")),
+                              );
+                            },
                           );
                         }),
 
