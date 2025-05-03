@@ -174,6 +174,23 @@ class _ContactPageState extends State<ContactPage> {
                             title: Text(phone.number),
                             subtitle: Text(_phoneLabelToString[phone.label] ?? 'Outro'),
 
+                            trailing: IconButton(
+                              icon: Icon(Icons.sms_outlined),
+                              onPressed: () async {
+                                final Uri uri = Uri(scheme: 'sms', path: phone.number);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text('Erro ao abrir o app de SMS')
+                                      )
+                                  );
+                                }
+                              },
+                              tooltip: "Enviar SMS",
+                            ),
+
                             onTap: (){
                               makePhoneCall(phone.normalizedNumber);
                             },
@@ -231,10 +248,17 @@ class _ContactPageState extends State<ContactPage> {
                             leading: index == 0 ? Icon(Icons.location_on_outlined, size: 26) : const SizedBox.shrink(),
                             title: Text(address.address),
                             subtitle: Text(_addressLabelToString[address.label] ?? 'Outro'),
+
                             onTap: (){},
+
+                            onLongPress: (){
+                              Clipboard.setData(ClipboardData(text: address.address));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("'${address.address}' copiado para a Área de Transferência")),
+                              );
+                            },
                           );
                         }),
-
                         SizedBox(height: 8),
                       ],
                     ),
