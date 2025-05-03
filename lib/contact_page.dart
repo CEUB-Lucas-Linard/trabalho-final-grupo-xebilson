@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/properties/address.dart';
 import 'package:flutter_contacts/properties/email.dart';
@@ -61,6 +63,24 @@ class _ContactPageState extends State<ContactPage> {
 
   bool get hasAnyContactData =>
       widget.contact.phones.isNotEmpty || widget.contact.emails.isNotEmpty || widget.contact.addresses.isNotEmpty;
+
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final permission = await Permission.phone.status;
+    if (permission.isDenied) {
+      final result = await Permission.phone.request();
+      if (!result.isGranted) {
+        // Usuário negou a permissão, então não faça nada
+        return;
+      }
+    }
+
+    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Não foi possível iniciar a ligação para $phoneNumber';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +147,6 @@ class _ContactPageState extends State<ContactPage> {
                   ),
                 ),
 
-                // TODO
 
                 Visibility(
                   visible: hasAnyContactData,
@@ -153,7 +172,12 @@ class _ContactPageState extends State<ContactPage> {
                             leading: index == 0 ? Icon(Icons.phone_outlined, size: 26) : const SizedBox.shrink(),
                             title: Text(phone.number),
                             subtitle: Text(_phoneLabelToString[phone.label] ?? 'Outro'),
-                            onTap: (){},
+                            onTap: (){
+                              makePhoneCall(phone.normalizedNumber);
+                            },
+                            onLongPress: () {
+                              // TODO: COPIAR O NÚMERO PARA A ÁREA DE TRANSFERÊNCIA
+                            },
                           );
                         }),
 
@@ -185,13 +209,11 @@ class _ContactPageState extends State<ContactPage> {
                           );
                         }),
 
-                        SizedBox(height: 8)
-
+                        SizedBox(height: 8),
                       ],
                     ),
                   ),
                 )
-
               ]
             ),
           )
