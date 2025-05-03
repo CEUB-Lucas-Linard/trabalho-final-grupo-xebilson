@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_contacts/contact.dart';
@@ -78,6 +79,7 @@ class _ContactPageState extends State<ContactPage> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
+      //TODO: Trocar por SnackBar
       throw 'Não foi possível iniciar a ligação para $phoneNumber';
     }
   }
@@ -98,7 +100,6 @@ class _ContactPageState extends State<ContactPage> {
               try {
                 await widget.contact.update();
               } catch (e) {
-                // Você pode mostrar um snackbar, log, etc.
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                         content: Text('Erro ao atualizar contato: $e')
@@ -172,11 +173,17 @@ class _ContactPageState extends State<ContactPage> {
                             leading: index == 0 ? Icon(Icons.phone_outlined, size: 26) : const SizedBox.shrink(),
                             title: Text(phone.number),
                             subtitle: Text(_phoneLabelToString[phone.label] ?? 'Outro'),
+
                             onTap: (){
                               makePhoneCall(phone.normalizedNumber);
                             },
+
+                            // Copia número para a Área de Transferência
                             onLongPress: () {
-                              // TODO: COPIAR O NÚMERO PARA A ÁREA DE TRANSFERÊNCIA
+                              Clipboard.setData(ClipboardData(text: phone.number));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("'${phone.number}' copiado para a Área de Transferência")),
+                              );
                             },
                           );
                         }),
