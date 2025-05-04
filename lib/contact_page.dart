@@ -89,31 +89,34 @@ class _ContactPageState extends State<ContactPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          // Botão de Favoritar Contato
           IconButton(
             icon: widget.contact.isStarred
               ? Icon(Icons.star)
               : Icon(Icons.star_outline),
             onPressed: () async {
-              setState(() {
-                widget.contact.isStarred = !widget.contact.isStarred;
-              });
+              final bool newStatus = !widget.contact.isStarred;
               try {
+                setState(() => widget.contact.isStarred = newStatus);
                 await widget.contact.update();
               } catch (e) {
+                setState(() => widget.contact.isStarred = !newStatus); // Reverte a mudança
                 ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Erro ao atualizar contato: $e')
-                    )
+                  SnackBar(content: Text('Erro ao favoritar contato: $e')),
                 );
               }
-            }
+            },
           ),
+
+          // Botão de Editar Contato
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () {
               // TODO (Página de Edição de Contato)
             },
           ),
+
+          // Botão de Deletar Contato
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {
@@ -147,7 +150,6 @@ class _ContactPageState extends State<ContactPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-
 
                 Visibility(
                   visible: hasAnyContactData,
