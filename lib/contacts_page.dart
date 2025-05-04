@@ -56,16 +56,18 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   // Favorita Contato
-  void _favoriteContact (Contact contact) async {
+  void _favoriteContact (Contact contact, BuildContext context) async {
     final bool newStatus = !contact.isStarred;
     try {
       setState(() => contact.isStarred = newStatus);
       await contact.update();
     } catch (e) {
       setState(() => contact.isStarred = !newStatus); // Reverte a mudança
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao favoritar contato: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao favoritar contato: $e')),
+        );
+      }
     }
 
   }
@@ -141,7 +143,7 @@ class _ContactsPageState extends State<ContactsPage> {
               icon: Icon(Icons.more_vert),
               onSelected: (value) {
                 if (value == 'favorite') {
-                  _favoriteContact(contact);
+                  _favoriteContact(contact, context);
                 } else if (value == 'delete') {
                   _deleteContact(contact);
                 }
@@ -160,7 +162,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
             onTap: () async {
               final fullContact = await FlutterContacts.getContact(contact.id, withAccounts: true);
-              if (fullContact != null) {
+              if ((fullContact != null) && (context.mounted)) {
                 await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => ContactPage(fullContact),

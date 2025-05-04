@@ -101,9 +101,11 @@ class _ContactPageState extends State<ContactPage> {
                 await widget.contact.update();
               } catch (e) {
                 setState(() => widget.contact.isStarred = !newStatus); // Reverte a mudança
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Erro ao favoritar contato: $e')),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao favoritar contato: $e')),
+                  );
+                }
               }
             },
           ),
@@ -183,11 +185,13 @@ class _ContactPageState extends State<ContactPage> {
                                 if (await canLaunchUrl(uri)) {
                                   await launchUrl(uri, mode: LaunchMode.externalApplication);
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('Erro ao abrir o app de SMS')
-                                      )
-                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text('Erro ao abrir o app de SMS')
+                                        )
+                                    );
+                                  }
                                 }
                               },
                               tooltip: "Enviar SMS",
@@ -223,11 +227,13 @@ class _ContactPageState extends State<ContactPage> {
                               if (await canLaunchUrl(uri)) {
                                 await launchUrl(uri, mode: LaunchMode.externalApplication);
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text('Erro ao abrir o app de e-mail')
-                                    )
-                                );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text('Erro ao abrir o app de e-mail')
+                                      )
+                                  );
+                                }
                               }
                             },
 
