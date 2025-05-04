@@ -45,20 +45,33 @@ class _ContactsPageState extends State<ContactsPage> {
     if (!await FlutterContacts.requestPermission()) {
       setState(() => _permissionDenied = true);
     } else {
-      if (widget.showFavorites) {
-        final contacts = await FlutterContacts.getContacts(withPhoto: true, withProperties: true);
-        setState(() => _contacts = contacts);
-      } else {
-        final contacts = await FlutterContacts.getContacts(withPhoto: true);
-        setState(() => _contacts = contacts);
-      }
+      final contacts = await FlutterContacts.getContacts(withPhoto: true, withProperties: true, withAccounts: true);
+      setState(() => _contacts = contacts);
     }
   }
 
-  // Função para botão de adicionar contato
+  // TODO: Função para botão de adicionar contato
   void _addContact () {
     print("TODO");
   }
+
+  // Favorita Contato
+  void _favoriteContact (Contact contact) async {
+    final bool newStatus = !contact.isStarred;
+    try {
+      setState(() => contact.isStarred = newStatus);
+      await contact.update();
+    } catch (e) {
+      setState(() => contact.isStarred = !newStatus); // Reverte a mudança
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao favoritar contato: $e')),
+      );
+    }
+
+  }
+
+  // Exclui Contato
+  void _deleteContact (Contact contact) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +108,7 @@ class _ContactsPageState extends State<ContactsPage> {
         itemCount: filteredContacts.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
+            // Botão de Adicionar Contato
             if (!widget.showFavorites){
               return ListTile(
                 contentPadding: EdgeInsets.only(left: 34, top: 16, bottom: 16, right: 16),
@@ -102,10 +116,12 @@ class _ContactsPageState extends State<ContactsPage> {
                 title: Text('Adicionar novo contato'),
                 onTap: _addContact,
               );
-            } else {
-              return const SizedBox.shrink(); // Se estiver na aba de favoritos, não mostrar nada
+            }
+            else {
+              return const SizedBox.shrink(); // Se estiver na aba de favoritos, não mostrar botão de Adicionar Contatos
             }
           }
+
           final contact = filteredContacts[index - 1];
 
           return ListTile(
@@ -121,11 +137,25 @@ class _ContactsPageState extends State<ContactsPage> {
               ),
 
             title: Text(contact.displayName),
-            trailing: IconButton(
+            trailing: PopupMenuButton(
               icon: Icon(Icons.more_vert),
-              onPressed: () {
-                // TODO (Favoritar, Excluir etc...)
+              onSelected: (value) {
+                if (value == 'favorite') {
+                  _favoriteContact(contact);
+                } else if (value == 'delete') {
+                  _deleteContact(contact);
+                }
               },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'favorite',
+                  child: !contact.isStarred ? Text('Favoritar') : Text('Desfavoritar'),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Excluir'),
+                ),
+              ],
             ),
 
             onTap: () async {
