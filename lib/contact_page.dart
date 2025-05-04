@@ -65,7 +65,7 @@ class _ContactPageState extends State<ContactPage> {
   bool get hasAnyContactData =>
       widget.contact.phones.isNotEmpty || widget.contact.emails.isNotEmpty || widget.contact.addresses.isNotEmpty;
 
-  Future<void> makePhoneCall(String phoneNumber) async {
+  Future<void> makePhoneCall(String phoneNumber, BuildContext context) async {
     final permission = await Permission.phone.status;
     if (permission.isDenied) {
       final result = await Permission.phone.request();
@@ -79,8 +79,11 @@ class _ContactPageState extends State<ContactPage> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
-      //TODO: Trocar por SnackBar
-      throw 'Não foi possível iniciar a ligação para $phoneNumber';
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível iniciar a ligação para $phoneNumber')),
+        );
+      }
     }
   }
 
@@ -198,7 +201,7 @@ class _ContactPageState extends State<ContactPage> {
                             ),
 
                             onTap: (){
-                              makePhoneCall(phone.normalizedNumber);
+                              makePhoneCall(phone.normalizedNumber, context);
                             },
 
                             // Copia número para a Área de Transferência
