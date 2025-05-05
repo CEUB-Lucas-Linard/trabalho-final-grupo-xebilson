@@ -173,14 +173,30 @@ class _ContactPageState extends State<ContactPage> {
                       : null,
                 ),
 
-                Text(
-                  widget.contact.displayName,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
-                  ),
+                // Nome e Organization
+                Column(
+                  children: [
+                    Text(
+                      widget.contact.displayName,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Visibility(
+                      visible: widget.contact.organizations.isNotEmpty == true,
+                      child: Text(widget.contact.organizations.single.company,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).textTheme.bodySmall?.color
+                        ),
+                      )
+                    ),
+                  ],
                 ),
 
+                // Card com Dados de contato
                 Visibility(
                   visible: hasAnyContactData,
                   replacement: Container(),
@@ -303,8 +319,9 @@ class _ContactPageState extends State<ContactPage> {
 
                 SizedBox(height: 0.1),
 
+                // Campo de Notas
                 TextFormField(
-                  initialValue: widget.contact.notes.single.note ?? 'Sem notas',
+                  initialValue: widget.contact.notes.single.note,
                   enabled: false,
                   readOnly: true,
                   maxLines: null, // Permite múltiplas linhas se necessário
