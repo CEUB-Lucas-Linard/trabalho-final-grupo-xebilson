@@ -322,7 +322,7 @@ class _ContactPageState extends State<ContactPage> {
                 // Campo de Notas
                 TextFormField(
                   initialValue: widget.contact.notes.isNotEmpty
-                      ? widget.contact.notes.single.note ?? 'Sem notas'
+                      ? widget.contact.notes.single.note
                       : 'Sem notas',
                   enabled: false,
                   readOnly: true,
