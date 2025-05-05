@@ -124,9 +124,34 @@ class _ContactPageState extends State<ContactPage> {
           // Botão de Deletar Contato
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {
-              // TODO (Deletar Contato)
-            },
+            onPressed:
+              () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text("Excluir Contato?"),
+                    content: Text("Certeza que deseja excluir ${widget.contact.displayName}?"),
+                    actions: [
+                      TextButton(
+                          onPressed: (){
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Cancelar")
+                      ),
+
+                      TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context); // Fecha o diálogo
+
+                            await widget.contact.delete();
+                            if (context.mounted) {
+                              Navigator.pop(context); // Volta para a lista de contatos
+                            }
+                          },
+                          child: const Text("Confirmar")
+                      ),
+                    ],
+                  )
+              )
           ),
         ]
       ),
@@ -149,7 +174,7 @@ class _ContactPageState extends State<ContactPage> {
                 ),
 
                 Text(
-                  "${widget.contact.name.first} ${widget.contact.name.last}",
+                  widget.contact.displayName,
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w600,
