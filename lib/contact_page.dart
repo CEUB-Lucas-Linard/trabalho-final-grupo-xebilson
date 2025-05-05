@@ -299,7 +299,28 @@ class _ContactPageState extends State<ContactPage> {
                       ],
                     ),
                   ),
-                )
+                ),
+
+                SizedBox(height: 0.1),
+
+                TextFormField(
+                  initialValue: widget.contact.notes.single.note ?? 'Sem notas',
+                  enabled: false,
+                  readOnly: true,
+                  maxLines: null, // Permite múltiplas linhas se necessário
+                  decoration: InputDecoration(
+                    label: Text('Notas',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 24),
               ]
             ),
           )
