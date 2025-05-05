@@ -77,7 +77,7 @@ class _ContactsPageState extends State<ContactsPage> {
     try {
       final snackBar = SnackBar(
         content: Text('${contact.name.first} ${contact.name.last} deletado.'),
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 5),
         action: SnackBarAction(
           label: 'Desfazer',
           onPressed: () {
