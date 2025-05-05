@@ -69,11 +69,45 @@ class _ContactsPageState extends State<ContactsPage> {
         );
       }
     }
-
   }
 
   // Exclui Contato
-  void _deleteContact (Contact contact) async {}
+  void _deleteContact (Contact contact, BuildContext context) async {
+    bool confirmDelete = true;
+    try {
+      final snackBar = SnackBar(
+        content: Text('${contact.name.first} ${contact.name.last} deletado.'),
+        duration: Duration(seconds: 10),
+        action: SnackBarAction(
+          label: 'Desfazer',
+          onPressed: () {
+            confirmDelete = false;
+          },
+        ),
+      );
+
+      final controller = ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      final reason = await controller.closed;  // Aguarda o fechamento da SnackBar
+
+      if (confirmDelete && reason != SnackBarClosedReason.action) {
+        // Só deleta se o usuário não clicou em "Desfazer"
+        await contact.delete();
+
+        if (context.mounted) {
+          setState(() {
+            _contacts?.remove(contact);
+          });
+        }
+      }
+    }
+    catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao Deletar contato contato: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +179,7 @@ class _ContactsPageState extends State<ContactsPage> {
                 if (value == 'favorite') {
                   _favoriteContact(contact, context);
                 } else if (value == 'delete') {
-                  _deleteContact(contact);
+                  _deleteContact(contact, context);
                 }
               },
               itemBuilder: (BuildContext context) => [
