@@ -321,7 +321,9 @@ class _ContactPageState extends State<ContactPage> {
 
                 // Campo de Notas
                 TextFormField(
-                  initialValue: widget.contact.notes.single.note,
+                  initialValue: widget.contact.notes.isNotEmpty
+                      ? widget.contact.notes.single.note ?? 'Sem notas'
+                      : 'Sem notas',
                   enabled: false,
                   readOnly: true,
                   maxLines: null, // Permite múltiplas linhas se necessário
