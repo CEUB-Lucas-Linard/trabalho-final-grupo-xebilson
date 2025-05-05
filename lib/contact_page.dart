@@ -183,16 +183,16 @@ class _ContactPageState extends State<ContactPage> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Visibility(
-                      visible: widget.contact.organizations.isNotEmpty == true,
-                      child: Text(widget.contact.organizations.single.company,
+                    if (widget.contact.organizations.isNotEmpty)
+                      Text(widget.contact.organizations.single.company,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           color: Theme.of(context).textTheme.bodySmall?.color
                         ),
                       )
-                    ),
+                    else
+                      const SizedBox.shrink(),
                   ],
                 ),
 
