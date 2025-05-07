@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:xebilson/contacts_page.dart';
 import 'package:xebilson/configs_page.dart';
 
@@ -16,9 +18,27 @@ class _HomePageState extends State<HomePage> {
 
   late List<Widget> _pages;
 
-  // TODO (Nav para página de discagem direta)
-  void _directCall() {
-    print("TODO");
+  // Discagem direta
+  Future<void> _directCall(BuildContext context) async {
+    final permission = await Permission.phone.status;
+    if (permission.isDenied) {
+      final result = await Permission.phone.request();
+      if (!result.isGranted) {
+        // Usuário negou a permissão, então não faça nada
+        return;
+      }
+    }
+
+    final Uri uri = Uri(scheme: 'tel');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível iniciar a ligação para ')),
+        );
+      }
+    }
   }
 
   @override
@@ -81,7 +101,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _directCall,
+        onPressed: () => _directCall(context),
         tooltip: 'Discagem rápida',
         child: const Icon(Icons.dialpad),
       ),
