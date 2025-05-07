@@ -301,7 +301,20 @@ class _ContactPageState extends State<ContactPage> {
                             title: Text(address.address),
                             subtitle: Text(_addressLabelToString[address.label] ?? 'Outro'),
 
-                            onTap: (){},
+                            onTap: () async {
+                              final Uri uri = Uri.parse('geo:0,0?q=${Uri.encodeComponent(address.address)}');
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                              } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text('Erro ao abrir o app de Mapas')
+                                      )
+                                  );
+                                }
+                              }
+                            },
 
                             onLongPress: (){
                               Clipboard.setData(ClipboardData(text: address.address));
