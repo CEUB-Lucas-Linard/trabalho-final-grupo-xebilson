@@ -159,7 +159,7 @@ class _ContactsPageState extends State<ContactsPage> {
             }
           }
 
-          // Se for o último item, adicione um padding ou SizedBox
+          // Se for o último item, adicione uma SizedBox
           if (index == filteredContacts.length + 1) {
             return const SizedBox(height: 80);
           }

@@ -339,7 +339,7 @@ class _ContactPageState extends State<ContactPage> {
                       : 'Sem notas',
                   enabled: false,
                   readOnly: true,
-                  maxLines: null, // Permite múltiplas linhas se necessário
+                  maxLines: null,
                   decoration: InputDecoration(
                     label: Text('Notas',
                       style: TextStyle(fontSize: 18),

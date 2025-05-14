@@ -125,7 +125,7 @@ class _NewContactState extends State<NewContact> {
                   ),
                 ),
 
-                SizedBox(height: 20), // Espaço extra no final
+                SizedBox(height: 20),
 
               ],
             ),
