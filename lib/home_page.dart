@@ -12,7 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentPageIndex = 1; // Default a página inicial para a de Contatos
+  final PageController _pageController = PageController(initialPage: 1);
+  int currentPageIndex = 1; // Defaulta a página inicial para a de Contatos
 
   final TextEditingController searchController = TextEditingController();
 
@@ -52,6 +53,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -74,13 +81,24 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-      body: _pages[currentPageIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPageIndex,
-        onDestinationSelected: (int index) {
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (int index) {
           setState(() {
             currentPageIndex = index;
           });
+        },
+        physics: const BouncingScrollPhysics(),
+        children: _pages,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentPageIndex,
+        onDestinationSelected: (int index) {
+          _pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         },
         destinations: const [
           NavigationDestination(
