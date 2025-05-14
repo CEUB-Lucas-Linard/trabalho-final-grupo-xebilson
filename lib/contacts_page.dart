@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:xebilson/new_contact.dart';
 import 'contact_page.dart';
 
 class ContactsPage extends StatefulWidget {
@@ -48,11 +49,6 @@ class _ContactsPageState extends State<ContactsPage> {
       final contacts = await FlutterContacts.getContacts(withPhoto: true, withProperties: true, withAccounts: true);
       setState(() => _contacts = contacts);
     }
-  }
-
-  // TODO: Função para botão de adicionar contato
-  void _addContact () {
-    print("TODO");
   }
 
   // Favorita Contato
@@ -141,16 +137,21 @@ class _ContactsPageState extends State<ContactsPage> {
     return Scrollbar(
       interactive: true,
       child: ListView.builder(
-        itemCount: filteredContacts.length + 1,
+        itemCount: filteredContacts.length + 2, // Adiciona +2 para o botão "Adicionar Novo Contato" e para o padding final
+
+        // Construção do item da lista (cada contato)
+
         itemBuilder: (context, index) {
           if (index == 0) {
             // Botão de Adicionar Contato
             if (!widget.showFavorites){
               return ListTile(
-                contentPadding: EdgeInsets.only(left: 34, top: 16, bottom: 16, right: 16),
-                leading: Icon(Icons.add_circle_outline, size: 30),
-                title: Text('Adicionar novo contato'),
-                onTap: _addContact,
+                contentPadding: const EdgeInsets.only(left: 34, top: 16, bottom: 16, right: 16),
+                leading: const Icon(Icons.add_circle_outline, size: 30),
+                title: const Text('Adicionar novo contato'),
+                onTap: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => NewContact()));
+                },
               );
             }
             else {
@@ -158,23 +159,28 @@ class _ContactsPageState extends State<ContactsPage> {
             }
           }
 
-          final contact = filteredContacts[index - 1];
+          // Se for o último item, adicione um padding ou SizedBox
+          if (index == filteredContacts.length + 1) {
+            return const SizedBox(height: 80);
+          }
+
+          final contact = filteredContacts[index - 1]; // Subtrai 1 porque o primeiro item é o botão de adicionar
 
           return ListTile(
-            contentPadding: EdgeInsets.only(left: 20, top: 8, bottom: 8, right: 16),
+            contentPadding: const EdgeInsets.only(left: 20, top: 8, bottom: 8, right: 16),
             leading: CircleAvatar(
                 radius: 30,
                 backgroundImage: contact.photo != null
                     ? MemoryImage(contact.photo!)
                     : null,
                 child: contact.photo == null
-                    ? Icon(Icons.person, size: 30)
+                    ? const Icon(Icons.person, size: 30)
                     : null,
               ),
 
             title: Text(contact.displayName),
             trailing: PopupMenuButton(
-              icon: Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert),
               onSelected: (value) {
                 if (value == 'favorite') {
                   _favoriteContact(contact, context);
@@ -185,11 +191,11 @@ class _ContactsPageState extends State<ContactsPage> {
               itemBuilder: (BuildContext context) => [
                 PopupMenuItem(
                   value: 'favorite',
-                  child: !contact.isStarred ? Text('Favoritar') : Text('Desfavoritar'),
+                  child: !contact.isStarred ? const Text('Favoritar') : const Text('Desfavoritar'),
                 ),
                 PopupMenuItem(
                   value: 'delete',
-                  child: Text('Excluir'),
+                  child: const Text('Excluir'),
                 ),
               ],
             ),
