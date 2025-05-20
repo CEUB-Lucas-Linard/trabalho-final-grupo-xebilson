@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:xebilson/contacts_page.dart';
-import 'package:xebilson/configs_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,7 +47,6 @@ class _HomePageState extends State<HomePage> {
     _pages = [
       ContactsPage(searchController: searchController, showFavorites: true),
       ContactsPage(searchController: searchController, showFavorites: false),
-      ConfigsPage(),
     ];
   }
 
@@ -110,11 +108,6 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.contacts_outlined),
             selectedIcon: Icon(Icons.contacts),
             label: 'Contatos',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Configurações',
           ),
         ],
       ),
