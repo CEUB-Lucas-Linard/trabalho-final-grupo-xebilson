@@ -12,8 +12,6 @@ class NewContact extends StatefulWidget {
 class _NewContactState extends State<NewContact> {
   final _contact = Contact();
 
-
-
   final ImagePicker _imagePicker = ImagePicker();
 
   Future _pickPhoto() async {
@@ -28,6 +26,21 @@ class _NewContactState extends State<NewContact> {
 
   Future<void> _saveContact() async {
     await _contact.insert();
+  }
+
+  final List<TextEditingController> _phoneControllers = [TextEditingController()];
+  void _addPhoneField() {
+    setState(() {
+      _phoneControllers.add(TextEditingController());
+    });
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _phoneControllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -52,74 +65,132 @@ class _NewContactState extends State<NewContact> {
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
-              spacing: 20.0,
+              spacing: 16.0,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
 
                 // Escolha de foto
-                Center(
-                  child: InkResponse(
-                    radius: 80,
-                    onTap: () async {await _pickPhoto();},
-                    child: CircleAvatar(
+                Column(
+                  spacing: 16,
+                  children: [
+                    InkResponse(
                       radius: 80,
-                      backgroundImage: _contact.photo != null
-                          ? MemoryImage(_contact.photo!)
-                          : null,
-                      child: _contact.photo == null
-                          ? Icon(Icons.person, size: 80)
-                          : null,
+                      onTap: () async {await _pickPhoto();},
+                      child: CircleAvatar(
+                        radius: 80,
+                        backgroundImage: _contact.photo != null
+                            ? MemoryImage(_contact.photo!)
+                            : null,
+                        child: _contact.photo == null
+                            ? Icon(Icons.add_photo_alternate, size: 80)
+                            : null,
+                      ),
                     ),
-                  ),
+
+                    ElevatedButton(
+                        onPressed: () async {await _pickPhoto();},
+                        child: Text('Adicionar imagem')),
+                  ],
                 ),
 
+                // Nome, Sobrenome, Organização, Telefones, E-mails
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
-                    spacing: 20.0,
+                    spacing: 24.0,
                     children: [
-                      // Campo de Nome
-                      TextFormField(
-                        initialValue: _contact.displayName,
-                        decoration: InputDecoration(labelText: 'Nome'),
-                        onChanged: (name) => _contact.name.first = name,
-                      ),
 
-                      // Campo de Sobrenome
-                      TextFormField(
-                        initialValue: _contact.name.last,
-                        decoration: InputDecoration(labelText: 'Sobrenome'),
-                        onChanged: (lastName) => _contact.name.last = lastName,
-                      ),
+                      // Campos de Nome e Sobrenome
+                      Column(
+                        spacing: 10,
+                        children: [
+                          // Campo de Nome
+                          TextFormField(
+                            initialValue: '',
+                            decoration: InputDecoration(
+                                labelText: 'Nome',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                            ),
+                            onChanged: (name) => _contact.name.first = name,
+                          ),
 
-                      // Campo de Telefone
-                      TextFormField(
-                        initialValue: _contact.phones.isNotEmpty ? _contact.phones.first.number : '',
-                        decoration: InputDecoration(labelText: 'Telefone'),
-                        keyboardType: TextInputType.phone,
-                        onChanged: (phone) => _contact.phones = [Phone(phone)],
-                      ),
-
-                      // Campo de Email
-                      TextFormField(
-                        initialValue: _contact.emails.isNotEmpty ? _contact.emails.first.address : '',
-                        decoration: InputDecoration(labelText: 'Email'),
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (email) => _contact.emails = [Email(email)],
-                      ),
-
-                      // Campo de Endereço
-                      TextFormField(
-                        initialValue: _contact.addresses.isNotEmpty ? _contact.addresses.first.address : '',
-                        decoration: InputDecoration(labelText: 'Endereço'),
-                        onChanged: (address) => _contact.addresses = [Address(address)],
+                          // Campo de Sobrenome
+                          TextFormField(
+                            initialValue: '',
+                            decoration: InputDecoration(
+                                labelText: 'Sobrenome',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                            ),
+                            onChanged: (lastName) => _contact.name.last = lastName,
+                          ),
+                        ],
                       ),
 
                       // Campo de Organização
                       TextFormField(
-                        initialValue: _contact.organizations.isNotEmpty ? _contact.organizations.first.company : '',
-                        decoration: InputDecoration(labelText: 'Organização'),
+                        initialValue: '',
+                        decoration: InputDecoration(
+                          labelText: 'Organização',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onChanged: (organization) => _contact.organizations = [Organization(company: organization)],
+                      ),
+
+                      // Campo de Telefones
+                      Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ..._phoneControllers.map((controller) {
+                            return Row(
+                              spacing: 10,
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: controller,
+                                    decoration: InputDecoration(
+                                        labelText: 'Telefone',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                    ),
+                                    keyboardType: TextInputType.phone,
+                                    onChanged: (phone) => _contact.phones.add(Phone(phone)),
+                                  ),
+                                ),
+                                IconButton(
+                                  color: Colors.red[200],
+                                  icon: Icon(
+                                    Icons.remove_circle_outline,
+                                    size: 26,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _phoneControllers.remove(controller);
+                                    });
+                                  }
+                                )
+                              ],
+                            );
+                          }),
+                          ElevatedButton(
+                            onPressed: () => _addPhoneField(),
+                            child: Text('Adicionar Telefone'),
+                          ),
+                        ],
+                      ),
+
+                      // TODO Campo de E-mail
+                      Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: []
                       ),
                     ],
                   ),
