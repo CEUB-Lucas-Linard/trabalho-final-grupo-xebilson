@@ -12,7 +12,6 @@ class ContactsApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Contatos',
-      //theme: brightness == Brightness.light ? theme.light() : theme.dark(),
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.deepOrangeAccent,

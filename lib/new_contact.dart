@@ -10,9 +10,18 @@ class NewContact extends StatefulWidget {
 }
 
 class _NewContactState extends State<NewContact> {
-  final _contact = Contact();
+  final Contact _contact = Contact();
 
   final ImagePicker _imagePicker = ImagePicker();
+
+  List<Phone> phones = [Phone("")];
+  List<TextEditingController> phoneTextControllers = [TextEditingController()];
+
+  List<Email> emails = [Email("")];
+  List<TextEditingController> emailTextControllers = [TextEditingController()];
+
+  List<Address> addresses = [Address("")];
+  List<TextEditingController> addressTextControllers = [TextEditingController()];
 
   Future _pickPhoto() async {
     final photo = await _imagePicker.pickImage(source: ImageSource.gallery);
@@ -25,21 +34,19 @@ class _NewContactState extends State<NewContact> {
   }
 
   Future<void> _saveContact() async {
+    _contact.phones = phones;
     await _contact.insert();
   }
 
-  final List<TextEditingController> _phoneControllers = [TextEditingController()];
   void _addPhoneField() {
     setState(() {
-      _phoneControllers.add(TextEditingController());
+      phones.add(Phone(""));
+      phoneTextControllers.add(TextEditingController());
     });
   }
 
   @override
   void dispose() {
-    for (var controller in _phoneControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
@@ -147,38 +154,46 @@ class _NewContactState extends State<NewContact> {
                         spacing: 10,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ..._phoneControllers.map((controller) {
-                            return Row(
-                              spacing: 10,
+                          ...phones.asMap().entries.map((entry) {
+                            final index = entry.key;
+
+                            return Column(
                               children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: controller,
-                                    decoration: InputDecoration(
-                                        labelText: 'Telefone',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: phoneTextControllers[index],
+                                        decoration: InputDecoration(
+                                          labelText: 'Telefone',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
                                         ),
+                                        onChanged: (number) => phones[index].number = number,
+                                      ),
                                     ),
-                                    keyboardType: TextInputType.phone,
-                                    onChanged: (phone) => _contact.phones.add(Phone(phone)),
-                                  ),
+                                    IconButton(
+                                      color: Colors.red[200],
+                                      icon: Icon(
+                                      Icons.remove_circle_outline,
+                                      size: 26,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          phones.removeAt(index);
+                                          phoneTextControllers.removeAt(index);
+                                        });
+                                      }
+                                    )
+                                  ],
                                 ),
-                                IconButton(
-                                  color: Colors.red[200],
-                                  icon: Icon(
-                                    Icons.remove_circle_outline,
-                                    size: 26,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _phoneControllers.remove(controller);
-                                    });
-                                  }
-                                )
+
+                                //TODO: seletor de Labels
+                                SizedBox.shrink(),
                               ],
                             );
-                          }),
+                          },),
                           ElevatedButton(
                             onPressed: () => _addPhoneField(),
                             child: Text('Adicionar Telefone'),
@@ -186,7 +201,7 @@ class _NewContactState extends State<NewContact> {
                         ],
                       ),
 
-                      // TODO Campo de E-mail
+                      // TODO Campo de E-mail e Endereço
                       Column(
                         spacing: 10,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,6 +211,7 @@ class _NewContactState extends State<NewContact> {
                   ),
                 ),
 
+                // TODO Notas
                 SizedBox(height: 20),
 
               ],
