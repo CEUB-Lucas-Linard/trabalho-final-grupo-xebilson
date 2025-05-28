@@ -1,3 +1,7 @@
+
+
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,19 +13,57 @@ class NewContact extends StatefulWidget {
   State<NewContact> createState() => _NewContactState();
 }
 
+// Labels dos Phones, o formato é meio idiota e redundante, mas funciona...
+const phoneLabelEntries = [
+  MenuEntry(label: 'Celular', value: 'Celular'),
+  MenuEntry(label: 'Assistente', value: 'Assistente'),
+  MenuEntry(label: 'Retorno de chamada', value: 'Retorno de chamada'),
+  MenuEntry(label: 'Carro', value: 'Carro'),
+  MenuEntry(label: 'Empresa', value: 'Empresa'),
+  MenuEntry(label: 'Fax (Casa)', value: 'Fax (Casa)'),
+  MenuEntry(label: 'Fax (Outro)', value: 'Fax (Outro)'),
+  MenuEntry(label: 'Fax (Trabalho)', value: 'Fax (Trabalho)'),
+  MenuEntry(label: 'Casa', value: 'Casa'),
+  MenuEntry(label: 'iPhone', value: 'iPhone'),
+  MenuEntry(label: 'ISDN', value: 'ISDN'),
+  MenuEntry(label: 'Principal', value: 'Principal'),
+  MenuEntry(label: 'MMS', value: 'MMS'),
+  MenuEntry(label: 'Pager', value: 'Pager'),
+  MenuEntry(label: 'Rádio', value: 'Rádio'),
+  MenuEntry(label: 'Escola', value: 'Escola'),
+  MenuEntry(label: 'Telex', value: 'Telex'),
+  MenuEntry(label: 'TTY/TTD', value: 'TTY/TTD'),
+  MenuEntry(label: 'Trabalho', value: 'Trabalho'),
+  MenuEntry(label: 'Celular (Trabalho)', value: 'Celular (Trabalho)'),
+  MenuEntry(label: 'Pager (Trabalho)', value: 'Pager (Trabalho)'),
+  MenuEntry(label: 'Outro', value: 'Outro'),
+  MenuEntry(label: 'Personalizado', value: 'Personalizado'),
+];
+
+
+typedef MenuEntry = DropdownMenuEntry<String>;
+
 class _NewContactState extends State<NewContact> {
   final Contact _contact = Contact();
 
   final ImagePicker _imagePicker = ImagePicker();
 
+  // Lista de telefones e seus respectivos controllers
   List<Phone> phones = [Phone("")];
   List<TextEditingController> phoneTextControllers = [TextEditingController()];
+
+  static final List<MenuEntry> menuEntries = UnmodifiableListView<MenuEntry>(
+    phoneLabelEntries.map<MenuEntry>((value) => MenuEntry(value: value.value, label: value.label)),
+  );
+  var dropdownValue = phoneLabelEntries.first;
+
 
   List<Email> emails = [Email("")];
   List<TextEditingController> emailTextControllers = [TextEditingController()];
 
   List<Address> addresses = [Address("")];
   List<TextEditingController> addressTextControllers = [TextEditingController()];
+
 
   Future _pickPhoto() async {
     final photo = await _imagePicker.pickImage(source: ImageSource.gallery);
@@ -158,8 +200,11 @@ class _NewContactState extends State<NewContact> {
                             final index = entry.key;
 
                             return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 10,
                               children: [
                                 Row(
+                                  spacing: 10,
                                   children: [
                                     Expanded(
                                       child: TextFormField(
@@ -190,7 +235,16 @@ class _NewContactState extends State<NewContact> {
                                 ),
 
                                 //TODO: seletor de Labels
-                                SizedBox.shrink(),
+                                DropdownMenu<String>(
+                                  initialSelection: phoneLabelEntries[index].value,
+                                  menuHeight: 150,
+                                  onSelected: (value) {
+                                    // This is called when the user selects an item.
+                                    print(value);
+                                  },
+                                  dropdownMenuEntries: menuEntries,
+
+                                )
                               ],
                             );
                           },),
