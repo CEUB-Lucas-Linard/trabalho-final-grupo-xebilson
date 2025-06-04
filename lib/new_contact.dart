@@ -1,7 +1,4 @@
-
-
 import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,7 +11,7 @@ class NewContact extends StatefulWidget {
 }
 
 // Labels dos Phones, o formato é meio idiota e redundante, mas funciona...
-const phoneLabelEntries = [
+const List<MenuEntry> phoneLabelEntries = [
   MenuEntry(label: 'Celular', value: 'Celular'),
   MenuEntry(label: 'Assistente', value: 'Assistente'),
   MenuEntry(label: 'Retorno de chamada', value: 'Retorno de chamada'),
@@ -40,6 +37,70 @@ const phoneLabelEntries = [
   MenuEntry(label: 'Personalizado', value: 'Personalizado'),
 ];
 
+final _stringToPhoneLabel = {
+  'Assistente': PhoneLabel.assistant,
+  'Retorno de chamada': PhoneLabel.callback,
+  'Carro': PhoneLabel.car,
+  'Empresa': PhoneLabel.companyMain,
+  'Fax (Casa)': PhoneLabel.faxHome,
+  'Fax (Outro)': PhoneLabel.faxOther,
+  'Fax (Trabalho)': PhoneLabel.faxWork,
+  'Casa': PhoneLabel.home,
+  'iPhone': PhoneLabel.iPhone,
+  'ISDN': PhoneLabel.isdn,
+  'Principal': PhoneLabel.main,
+  'MMS': PhoneLabel.mms,
+  'Celular': PhoneLabel.mobile,
+  'Pager': PhoneLabel.pager,
+  'Rádio': PhoneLabel.radio,
+  'Escola': PhoneLabel.school,
+  'Telex': PhoneLabel.telex,
+  'TTY/TTD': PhoneLabel.ttyTtd,
+  'Trabalho': PhoneLabel.work,
+  'Celular (Trabalho)': PhoneLabel.workMobile,
+  'Pager (Trabalho)': PhoneLabel.workPager,
+  'Outro': PhoneLabel.other,
+  'Personalizado': PhoneLabel.custom,
+};
+
+// Labels dos E-mails, no mesmo formato idiota
+const List<MenuEntry> emailLabelEntries = [
+  MenuEntry(label: 'Casa', value: 'Casa'),
+  MenuEntry(label: 'iCloud', value: 'iCloud'),
+  MenuEntry(label: 'Celular', value: 'Celular'),
+  MenuEntry(label: 'Escola', value: 'Escola'),
+  MenuEntry(label: 'Trabalho', value: 'Trabalho'),
+  MenuEntry(label: 'Outro', value: 'Outro'),
+  MenuEntry(label: 'Personalizado', value: 'Personalizado'),
+];
+
+final _stringToEmailLabel = {
+  'Casa': EmailLabel.home,
+  'iCloud': EmailLabel.iCloud,
+  'Celular': EmailLabel.mobile,
+  'Escola': EmailLabel.school,
+  'Trabalho': EmailLabel.work,
+  'Outro': EmailLabel.other,
+  'Personalizado': EmailLabel.custom,
+};
+
+// Labels dos Endereços
+const List<MenuEntry> addressLabelEntries = [
+  MenuEntry(label: 'Casa', value: 'Casa'),
+  MenuEntry(label: 'Escola', value: 'Escola'),
+  MenuEntry(label: 'Trabalho', value: 'Trabalho'),
+  MenuEntry(label: 'Outro', value: 'Outro'),
+  MenuEntry(label: 'Personalizado', value: 'Personalizado'),
+];
+
+final _stringToAddressLabel = {
+  'Casa': AddressLabel.home,
+  'Escola': AddressLabel.school,
+  'Trabalho': AddressLabel.work,
+  'Outro': AddressLabel.other,
+  'Personalizado': AddressLabel.custom,
+};
+
 
 typedef MenuEntry = DropdownMenuEntry<String>;
 
@@ -52,18 +113,33 @@ class _NewContactState extends State<NewContact> {
   List<Phone> phones = [Phone("")];
   List<TextEditingController> phoneTextControllers = [TextEditingController()];
 
-  static final List<MenuEntry> menuEntries = UnmodifiableListView<MenuEntry>(
+  static final List<MenuEntry> phoneMenuEntries = UnmodifiableListView<MenuEntry>(
     phoneLabelEntries.map<MenuEntry>((value) => MenuEntry(value: value.value, label: value.label)),
   );
-  var dropdownValue = phoneLabelEntries.first;
+  var phoneDropdownValue = phoneLabelEntries.first;
 
 
+  // Lista de e-mails e seus respectivos controllers
   List<Email> emails = [Email("")];
   List<TextEditingController> emailTextControllers = [TextEditingController()];
+  
+  static final List<MenuEntry> emailMenuEntries = UnmodifiableListView<MenuEntry>(
+    emailLabelEntries.map<MenuEntry>((value) => MenuEntry(value: value.value, label: value.label)),
+  );
+  var emailDropdownValue = emailLabelEntries.first;
+  
 
+  // Lista de endereços e seus respectivos controllers
   List<Address> addresses = [Address("")];
   List<TextEditingController> addressTextControllers = [TextEditingController()];
 
+  static final List<MenuEntry> addressMenuEntries = UnmodifiableListView<MenuEntry>(
+    addressLabelEntries.map<MenuEntry>((value) => MenuEntry(value: value.value, label: value.label)),
+  );
+  var addressDropdownValue = addressLabelEntries.first;
+
+  // Notas Text Controller.
+  late final TextEditingController _noteController;
 
   Future _pickPhoto() async {
     final photo = await _imagePicker.pickImage(source: ImageSource.gallery);
@@ -77,6 +153,9 @@ class _NewContactState extends State<NewContact> {
 
   Future<void> _saveContact() async {
     _contact.phones = phones;
+    _contact.emails = emails;
+    _contact.addresses = addresses;
+    print(_contact.addresses);
     await _contact.insert();
   }
 
@@ -87,8 +166,31 @@ class _NewContactState extends State<NewContact> {
     });
   }
 
+  void _addEmailField() {
+    setState(() {
+      emails.add(Email(""));
+      emailTextControllers.add(TextEditingController());
+    });
+  }
+
+  void _addAddressField() {
+    setState(() {
+      addresses.add(Address(""));
+      addressTextControllers.add(TextEditingController());
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = TextEditingController(
+      text: _contact.notes.isNotEmpty ? _contact.notes.first.note : '',
+    );
+  }
+
   @override
   void dispose() {
+    _noteController.dispose();
     super.dispose();
   }
 
@@ -206,6 +308,8 @@ class _NewContactState extends State<NewContact> {
                                 Row(
                                   spacing: 10,
                                   children: [
+
+                                    // Editar Telefone
                                     Expanded(
                                       child: TextFormField(
                                         controller: phoneTextControllers[index],
@@ -218,11 +322,13 @@ class _NewContactState extends State<NewContact> {
                                         onChanged: (number) => phones[index].number = number,
                                       ),
                                     ),
+
+                                    //Remover Telefone
                                     IconButton(
                                       color: Colors.red[200],
                                       icon: Icon(
-                                      Icons.remove_circle_outline,
-                                      size: 26,
+                                        Icons.remove_circle_outline,
+                                        size: 26,
                                       ),
                                       onPressed: () {
                                         setState(() {
@@ -234,20 +340,21 @@ class _NewContactState extends State<NewContact> {
                                   ],
                                 ),
 
-                                //TODO: seletor de Labels
+                                // Seletor de Labels para o Telefone
                                 DropdownMenu<String>(
                                   initialSelection: phoneLabelEntries[index].value,
                                   menuHeight: 150,
                                   onSelected: (value) {
-                                    // This is called when the user selects an item.
-                                    print(value);
+                                    setState(() {
+                                      phones[index].label = _stringToPhoneLabel[value]!;
+                                    });
                                   },
-                                  dropdownMenuEntries: menuEntries,
-
+                                  dropdownMenuEntries: phoneMenuEntries,
                                 )
                               ],
                             );
                           },),
+                          //Adicionar Telefone
                           ElevatedButton(
                             onPressed: () => _addPhoneField(),
                             child: Text('Adicionar Telefone'),
@@ -255,19 +362,168 @@ class _NewContactState extends State<NewContact> {
                         ],
                       ),
 
-                      // TODO Campo de E-mail e Endereço
+                      // Campo de E-mail
                       Column(
                         spacing: 10,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: []
+                        children: [
+                          ...emails.asMap().entries.map((entry) {
+                            final index = entry.key;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 10,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  children: [
+
+                                    //Editar E-mail
+                                    Expanded(
+                                        child: TextFormField(
+                                          controller: emailTextControllers[index],
+                                          decoration: InputDecoration(
+                                            labelText: 'E-mail',
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              ),
+                                          ),
+                                          onChanged: (email) => emails[index].address = email,
+                                        ),
+                                    ),
+
+                                    //Remover E-mail
+                                    IconButton(
+                                      color: Colors.red[200],
+                                      icon: Icon(
+                                        Icons.remove_circle_outline,
+                                        size: 26,
+                                      ),
+                                      onPressed: (){
+                                        setState(() {
+                                          emails.removeAt(index);
+                                          emailTextControllers.removeAt(index);
+                                        });
+                                      },
+                                    )
+                                  ],
+                                ),
+
+                                //Seletor de Labels para o E-mail
+                                DropdownMenu<String>(
+                                  initialSelection: emailLabelEntries[index].value,
+                                  menuHeight: 150,
+                                  onSelected: (value) {
+                                    setState(() {
+                                      emails[index].label = _stringToEmailLabel[value]!;
+                                    });
+                                  },
+                                  dropdownMenuEntries: emailMenuEntries,
+                                )
+                              ]
+                            );
+                          },),
+
+                          //Adicionar Emails
+                          ElevatedButton(
+                            onPressed: () => _addEmailField(),
+                            child: Text('Adicionar E-mail'),
+                          ),
+                        ]
+                      ),
+
+                      // Campo de Endereços
+                      Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...addresses.asMap().entries.map((entry){
+                            final index = entry.key;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 10,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  children: [
+
+                                    // Editar Endereços
+                                    Expanded(
+                                        child: TextFormField(
+                                          controller: addressTextControllers[index],
+                                          decoration: InputDecoration(
+                                            labelText: 'Endereço',
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          onChanged: (value) => addresses[index].address = value,
+
+                                        ),
+                                    ),
+
+                                    //Remover Endereço
+                                    IconButton(
+                                      color: Colors.red[200],
+                                      icon: Icon(
+                                        Icons.remove_circle_outline,
+                                        size: 26,
+                                      ),
+                                      onPressed: (){
+                                        setState(() {
+                                          addresses.removeAt(index);
+                                          addressTextControllers.removeAt(index);
+                                        });
+                                      },
+                                    )
+                                  ]
+                                ),
+
+                                //Seletor de Labels para o Endereço
+                                DropdownMenu<String>(
+                                  initialSelection: addressLabelEntries[index].value,
+                                  menuHeight: 150,
+                                  onSelected: (value) {
+                                    setState(() {
+                                      addresses[index].label = _stringToAddressLabel[value]!;
+                                    });
+                                  },
+                                  dropdownMenuEntries: addressMenuEntries,
+                                )
+                              ],
+                            );
+                          }),
+                          //Adicionar Endereço
+                          ElevatedButton(
+                            onPressed: () => _addAddressField(),
+                            child: Text('Adicionar Endereço'),
+                          ),
+                        ],
+                      ),
+
+                      TextFormField(
+                        controller: _noteController,
+                        onChanged: (value) {
+                          if (_contact.notes.isEmpty) {
+                            _contact.notes = [Note(value)];
+                          } else {
+                            _contact.notes.first.note = value;
+                          }
+                        },
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          labelText: 'Nota',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                // TODO Notas
-                SizedBox(height: 20),
-
+                SizedBox(height: 36)
               ],
             ),
           ),
