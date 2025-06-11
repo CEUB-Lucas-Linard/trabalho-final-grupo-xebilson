@@ -6,10 +6,10 @@ import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/properties/address.dart';
 import 'package:flutter_contacts/properties/email.dart';
 import 'package:flutter_contacts/properties/phone.dart';
+import 'edit_contact.dart';
 
 class ContactPage extends StatefulWidget {
   final Contact contact;
-
 
   const ContactPage(this.contact, {super.key});
 
@@ -63,7 +63,9 @@ class _ContactPageState extends State<ContactPage> {
   };
 
   bool get hasAnyContactData =>
-      widget.contact.phones.isNotEmpty || widget.contact.emails.isNotEmpty || widget.contact.addresses.isNotEmpty;
+      widget.contact.phones.isNotEmpty ||
+      widget.contact.emails.isNotEmpty ||
+      widget.contact.addresses.isNotEmpty;
 
   Future<void> makePhoneCall(String phoneNumber, BuildContext context) async {
     final permission = await Permission.phone.status;
@@ -81,7 +83,11 @@ class _ContactPageState extends State<ContactPage> {
     } else {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Não foi possível iniciar a ligação para $phoneNumber')),
+          SnackBar(
+            content: Text(
+              'Não foi possível iniciar a ligação para $phoneNumber',
+            ),
+          ),
         );
       }
     }
@@ -94,16 +100,19 @@ class _ContactPageState extends State<ContactPage> {
         actions: [
           // Botão de Favoritar Contato
           IconButton(
-            icon: widget.contact.isStarred
-              ? Icon(Icons.star)
-              : Icon(Icons.star_outline),
+            icon:
+                widget.contact.isStarred
+                    ? Icon(Icons.star)
+                    : Icon(Icons.star_outline),
             onPressed: () async {
               final bool newStatus = !widget.contact.isStarred;
               try {
                 setState(() => widget.contact.isStarred = newStatus);
                 await widget.contact.update();
               } catch (e) {
-                setState(() => widget.contact.isStarred = !newStatus); // Reverte a mudança
+                setState(
+                  () => widget.contact.isStarred = !newStatus,
+                ); // Reverte a mudança
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Erro ao favoritar contato: $e')),
@@ -116,8 +125,14 @@ class _ContactPageState extends State<ContactPage> {
           // Botão de Editar Contato
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () {
-              // TODO (Página de Edição de Contato)
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => EditContact(contact: widget.contact),
+                ),
+              );
+              await widget.contact.update();
+              setState(() {});
             },
           ),
 
@@ -125,35 +140,40 @@ class _ContactPageState extends State<ContactPage> {
           IconButton(
             icon: Icon(Icons.delete),
             onPressed:
-              () => showDialog(
+                () => showDialog(
                   context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text("Excluir Contato?"),
-                    content: Text("Certeza que deseja excluir ${widget.contact.displayName}?"),
-                    actions: [
-                      TextButton(
-                          onPressed: (){
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Cancelar")
-                      ),
+                  builder:
+                      (BuildContext context) => AlertDialog(
+                        title: const Text("Excluir Contato?"),
+                        content: Text(
+                          "Certeza que deseja excluir ${widget.contact.displayName}?",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("Cancelar"),
+                          ),
 
-                      TextButton(
-                          onPressed: () async {
-                            Navigator.pop(context); // Fecha o diálogo
+                          TextButton(
+                            onPressed: () async {
+                              Navigator.pop(context); // Fecha o diálogo
 
-                            await widget.contact.delete();
-                            if (context.mounted) {
-                              Navigator.pop(context); // Volta para a lista de contatos
-                            }
-                          },
-                          child: const Text("Confirmar")
+                              await widget.contact.delete();
+                              if (context.mounted) {
+                                Navigator.pop(
+                                  context,
+                                ); // Volta para a lista de contatos
+                              }
+                            },
+                            child: const Text("Confirmar"),
+                          ),
+                        ],
                       ),
-                    ],
-                  )
-              )
+                ),
           ),
-        ]
+        ],
       ),
       body: Scrollbar(
         child: Padding(
@@ -165,12 +185,14 @@ class _ContactPageState extends State<ContactPage> {
               children: [
                 CircleAvatar(
                   radius: 80,
-                  backgroundImage: widget.contact.photo != null
-                      ? MemoryImage(widget.contact.photo!)
-                      : null,
-                  child: widget.contact.photo == null
-                      ? Icon(Icons.person, size: 80)
-                      : null,
+                  backgroundImage:
+                      widget.contact.photo != null
+                          ? MemoryImage(widget.contact.photo!)
+                          : null,
+                  child:
+                      widget.contact.photo == null
+                          ? Icon(Icons.person, size: 80)
+                          : null,
                 ),
 
                 // Nome e Organization
@@ -184,11 +206,12 @@ class _ContactPageState extends State<ContactPage> {
                       ),
                     ),
                     if (widget.contact.organizations.isNotEmpty)
-                      Text(widget.contact.organizations.single.company,
+                      Text(
+                        widget.contact.organizations.single.company,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
-                          color: Theme.of(context).textTheme.bodySmall?.color
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
                       )
                     else
@@ -205,10 +228,17 @@ class _ContactPageState extends State<ContactPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(left: 20, top: 12, bottom: 6),
+                          padding: const EdgeInsets.only(
+                            left: 20,
+                            top: 12,
+                            bottom: 6,
+                          ),
                           child: Text(
                             'Dados de contato',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
 
@@ -218,22 +248,35 @@ class _ContactPageState extends State<ContactPage> {
                           final phone = entry.value;
 
                           return ListTile(
-                            leading: index == 0 ? Icon(Icons.phone_outlined, size: 26) : const SizedBox.shrink(),
+                            leading:
+                                index == 0
+                                    ? Icon(Icons.phone_outlined, size: 26)
+                                    : const SizedBox.shrink(),
                             title: Text(phone.number),
-                            subtitle: Text(_phoneLabelToString[phone.label] ?? 'Outro'),
+                            subtitle: Text(
+                              _phoneLabelToString[phone.label] ?? 'Outro',
+                            ),
 
                             trailing: IconButton(
                               icon: Icon(Icons.sms_outlined),
                               onPressed: () async {
-                                final Uri uri = Uri(scheme: 'sms', path: phone.number);
+                                final Uri uri = Uri(
+                                  scheme: 'sms',
+                                  path: phone.number,
+                                );
                                 if (await canLaunchUrl(uri)) {
-                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
                                 } else {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text('Erro ao abrir o app de SMS')
-                                        )
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao abrir o app de SMS',
+                                        ),
+                                      ),
                                     );
                                   }
                                 }
@@ -241,85 +284,138 @@ class _ContactPageState extends State<ContactPage> {
                               tooltip: "Enviar SMS",
                             ),
 
-                            onTap: (){
+                            onTap: () {
                               makePhoneCall(phone.normalizedNumber, context);
                             },
 
                             // Copia número para a Área de Transferência
                             onLongPress: () {
-                              Clipboard.setData(ClipboardData(text: phone.number));
+                              Clipboard.setData(
+                                ClipboardData(text: phone.number),
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("'${phone.number}' copiado para a Área de Transferência")),
+                                SnackBar(
+                                  content: Text(
+                                    "'${phone.number}' copiado para a Área de Transferência",
+                                  ),
+                                ),
                               );
                             },
                           );
                         }),
 
                         // E-mails
-                        Visibility(visible: (widget.contact.emails.isNotEmpty && widget.contact.phones.isNotEmpty), child: Divider()),
+                        Visibility(
+                          visible:
+                              (widget.contact.emails.isNotEmpty &&
+                                  widget.contact.phones.isNotEmpty),
+                          child: Divider(),
+                        ),
                         ...widget.contact.emails.asMap().entries.map((entry) {
                           final index = entry.key;
                           final email = entry.value;
 
                           return ListTile(
-                            leading: index == 0 ? Icon(Icons.email_outlined, size: 26) : const SizedBox.shrink(),
+                            leading:
+                                index == 0
+                                    ? Icon(Icons.email_outlined, size: 26)
+                                    : const SizedBox.shrink(),
                             title: Text(email.address),
-                            subtitle: Text(_emailLabelToString[email.label] ?? 'Outro'),
+                            subtitle: Text(
+                              _emailLabelToString[email.label] ?? 'Outro',
+                            ),
 
                             onTap: () async {
-                              final Uri uri = Uri(scheme: 'mailto', path: email.address);
+                              final Uri uri = Uri(
+                                scheme: 'mailto',
+                                path: email.address,
+                              );
                               if (await canLaunchUrl(uri)) {
-                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
                               } else {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('Erro ao abrir o app de e-mail')
-                                      )
+                                    SnackBar(
+                                      content: Text(
+                                        'Erro ao abrir o app de e-mail',
+                                      ),
+                                    ),
                                   );
                                 }
                               }
                             },
 
-                            onLongPress: (){
-                              Clipboard.setData(ClipboardData(text: email.address));
+                            onLongPress: () {
+                              Clipboard.setData(
+                                ClipboardData(text: email.address),
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("'${email.address}' copiado para a Área de Transferência")),
+                                SnackBar(
+                                  content: Text(
+                                    "'${email.address}' copiado para a Área de Transferência",
+                                  ),
+                                ),
                               );
                             },
                           );
                         }),
 
-                        Visibility(visible: widget.contact.addresses.isNotEmpty, child: Divider()),
+                        Visibility(
+                          visible: widget.contact.addresses.isNotEmpty,
+                          child: Divider(),
+                        ),
                         // Endereços
-                        ...widget.contact.addresses.asMap().entries.map((entry) {
+                        ...widget.contact.addresses.asMap().entries.map((
+                          entry,
+                        ) {
                           final index = entry.key;
                           final address = entry.value;
 
                           return ListTile(
-                            leading: index == 0 ? Icon(Icons.location_on_outlined, size: 26) : const SizedBox.shrink(),
+                            leading:
+                                index == 0
+                                    ? Icon(Icons.location_on_outlined, size: 26)
+                                    : const SizedBox.shrink(),
                             title: Text(address.address),
-                            subtitle: Text(_addressLabelToString[address.label] ?? 'Outro'),
+                            subtitle: Text(
+                              _addressLabelToString[address.label] ?? 'Outro',
+                            ),
 
                             onTap: () async {
-                              final Uri uri = Uri.parse('geo:0,0?q=${Uri.encodeComponent(address.address)}');
+                              final Uri uri = Uri.parse(
+                                'geo:0,0?q=${Uri.encodeComponent(address.address)}',
+                              );
                               if (await canLaunchUrl(uri)) {
-                                await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
                               } else {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('Erro ao abrir o app de Mapas')
-                                      )
+                                    SnackBar(
+                                      content: Text(
+                                        'Erro ao abrir o app de Mapas',
+                                      ),
+                                    ),
                                   );
                                 }
                               }
                             },
 
-                            onLongPress: (){
-                              Clipboard.setData(ClipboardData(text: address.address));
+                            onLongPress: () {
+                              Clipboard.setData(
+                                ClipboardData(text: address.address),
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("'${address.address}' copiado para a Área de Transferência")),
+                                SnackBar(
+                                  content: Text(
+                                    "'${address.address}' copiado para a Área de Transferência",
+                                  ),
+                                ),
                               );
                             },
                           );
@@ -334,16 +430,15 @@ class _ContactPageState extends State<ContactPage> {
 
                 // Campo de Notas
                 TextFormField(
-                  initialValue: widget.contact.notes.isNotEmpty
-                      ? widget.contact.notes.single.note
-                      : 'Sem notas',
+                  initialValue:
+                      widget.contact.notes.isNotEmpty
+                          ? widget.contact.notes.single.note
+                          : 'Sem notas',
                   enabled: false,
                   readOnly: true,
                   maxLines: null,
                   decoration: InputDecoration(
-                    label: Text('Notas',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                    label: Text('Notas', style: TextStyle(fontSize: 18)),
                     filled: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -353,11 +448,11 @@ class _ContactPageState extends State<ContactPage> {
                 ),
 
                 SizedBox(height: 24),
-              ]
+              ],
             ),
-          )
+          ),
         ),
-      )
+      ),
     );
   }
 }

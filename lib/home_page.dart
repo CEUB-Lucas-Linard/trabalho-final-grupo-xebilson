@@ -74,11 +74,11 @@ class _HomePageState extends State<HomePage> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide.none,
-                ),
               ),
             ),
           ),
         ),
+      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (int index) {

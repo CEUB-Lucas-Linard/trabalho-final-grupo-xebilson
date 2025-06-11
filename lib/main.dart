@@ -13,14 +13,16 @@ class ContactsApp extends StatelessWidget {
     return MaterialApp(
       title: 'Contatos',
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepOrangeAccent,
-              brightness: Brightness.light)
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepOrangeAccent,
+          brightness: Brightness.light,
+        ),
       ),
-      darkTheme:ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepOrangeAccent,
-              brightness: Brightness.dark)
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepOrangeAccent,
+          brightness: Brightness.dark,
+        ),
       ),
       home: const HomePage(),
     );
