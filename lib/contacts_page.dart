@@ -89,17 +89,15 @@ class _ContactsPageState extends State<ContactsPage> {
       );
 
       final controller = ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      final reason =
-          await controller.closed; // Aguarda o fechamento da SnackBar
+      final reason = await controller.closed; // Aguarda o fechamento da SnackBar
 
       if (confirmDelete && reason != SnackBarClosedReason.action) {
         // Só deleta se o usuário não clicou em "Desfazer"
         await contact.delete();
 
         if (context.mounted) {
-          setState(() {
-            contacts.remove(contact);
-          });
+          contacts.remove(contact);
+          _onContactsChanged();
         }
       }
     } catch (e) {
@@ -162,8 +160,8 @@ class _ContactsPageState extends State<ContactsPage> {
                       // Caso a lista de contatos não seja vazia
                       : ListView.builder(
                         itemCount:
-                            filteredContacts.length +
-                            2, // Adiciona +2 para o botão "Adicionar Novo Contato" e para o padding final
+                            filteredContacts.length + 2, // Adiciona +2 para o botão "Adicionar Novo Contato" e para o padding final
+
                         // Construção do item da lista (cada contato)
                         itemBuilder: (context, index) {
                           if (index == 0) {
@@ -187,6 +185,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                       builder: (_) => NewContact(),
                                     ),
                                   );
+                                  setState(() {});
                                 },
                               );
                             } else {
@@ -199,9 +198,7 @@ class _ContactsPageState extends State<ContactsPage> {
                             return const SizedBox(height: 80);
                           }
 
-                          final contact =
-                              filteredContacts[index -
-                                  1]; // Subtrai 1 porque o primeiro item é o botão de adicionar
+                          final contact = filteredContacts[index - 1]; // Subtrai 1 porque o primeiro item é o botão de adicionar
 
                           return ListTile(
                             contentPadding: const EdgeInsets.only(
@@ -230,6 +227,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                   _favoriteContact(contact, context);
                                 } else if (value == 'delete') {
                                   _deleteContact(contact, context);
+                                  setState(() {});
                                 }
                               },
                               itemBuilder:

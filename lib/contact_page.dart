@@ -18,6 +18,11 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
+  late final bool hasvalidEmails;
+  late final bool hasvalidAddresses;
+  late final bool hasValidPhones;
+  late final bool hasAnyContactData;
+
   final _phoneLabelToString = {
     PhoneLabel.assistant: 'Assistente',
     PhoneLabel.callback: 'Retorno de chamada',
@@ -62,10 +67,20 @@ class _ContactPageState extends State<ContactPage> {
     AddressLabel.custom: 'Personalizado',
   };
 
-  bool get hasAnyContactData =>
-      widget.contact.phones.isNotEmpty ||
-      widget.contact.emails.isNotEmpty ||
-      widget.contact.addresses.isNotEmpty;
+  @override
+  void initState() {
+    super.initState();
+    hasvalidEmails = widget.contact.emails.any(
+          (email) => email.address != "" && email.address.trim().isNotEmpty,
+    );
+    hasvalidAddresses = widget.contact.addresses.any(
+          (address) => address.address != "",
+    );
+    hasValidPhones = widget.contact.phones.any(
+          (phone) => phone.number != "" && phone.number.trim().isNotEmpty,
+    );
+    hasAnyContactData = hasvalidEmails || hasvalidAddresses || hasValidPhones;
+  }
 
   Future<void> makePhoneCall(String phoneNumber, BuildContext context) async {
     final permission = await Permission.phone.status;
@@ -93,6 +108,7 @@ class _ContactPageState extends State<ContactPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,9 +126,7 @@ class _ContactPageState extends State<ContactPage> {
                 setState(() => widget.contact.isStarred = newStatus);
                 await widget.contact.update();
               } catch (e) {
-                setState(
-                  () => widget.contact.isStarred = !newStatus,
-                ); // Reverte a mudança
+                setState(() => widget.contact.isStarred = !newStatus,); // Reverte a mudança
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Erro ao favoritar contato: $e')),
@@ -125,13 +139,13 @@ class _ContactPageState extends State<ContactPage> {
           // Botão de Editar Contato
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () async {
-              await Navigator.of(context).push(
+            onPressed: () {
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => EditContact(contact: widget.contact),
                 ),
               );
-              await widget.contact.update();
+              widget.contact.update();
               setState(() {});
             },
           ),
@@ -242,21 +256,24 @@ class _ContactPageState extends State<ContactPage> {
                           ),
                         ),
 
-                        // Telefones
-                        ...widget.contact.phones.asMap().entries.map((entry) {
+                        ...widget.contact.phones
+                            .asMap()
+                            .entries
+                            .where((entry) =>
+                              entry.value.number != "" &&
+                              entry.value.number.trim().isNotEmpty)
+                              .map((entry) {
                           final index = entry.key;
                           final phone = entry.value;
 
                           return ListTile(
-                            leading:
-                                index == 0
-                                    ? Icon(Icons.phone_outlined, size: 26)
-                                    : const SizedBox.shrink(),
+                            leading: index == 0
+                                ? Icon(Icons.phone_outlined, size: 26)
+                                : const SizedBox.shrink(),
                             title: Text(phone.number),
                             subtitle: Text(
                               _phoneLabelToString[phone.label] ?? 'Outro',
                             ),
-
                             trailing: IconButton(
                               icon: Icon(Icons.sms_outlined),
                               onPressed: () async {
@@ -273,9 +290,7 @@ class _ContactPageState extends State<ContactPage> {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(
-                                          'Erro ao abrir o app de SMS',
-                                        ),
+                                        content: Text('Erro ao abrir o app de SMS'),
                                       ),
                                     );
                                   }
@@ -283,12 +298,9 @@ class _ContactPageState extends State<ContactPage> {
                               },
                               tooltip: "Enviar SMS",
                             ),
-
                             onTap: () {
                               makePhoneCall(phone.normalizedNumber, context);
                             },
-
-                            // Copia número para a Área de Transferência
                             onLongPress: () {
                               Clipboard.setData(
                                 ClipboardData(text: phone.number),
@@ -304,67 +316,68 @@ class _ContactPageState extends State<ContactPage> {
                           );
                         }),
 
+
                         // E-mails
                         Visibility(
-                          visible:
-                              (widget.contact.emails.isNotEmpty &&
-                                  widget.contact.phones.isNotEmpty),
+                          visible: hasvalidEmails,
                           child: Divider(),
                         ),
                         ...widget.contact.emails.asMap().entries.map((entry) {
                           final index = entry.key;
                           final email = entry.value;
 
-                          return ListTile(
-                            leading:
-                                index == 0
-                                    ? Icon(Icons.email_outlined, size: 26)
-                                    : const SizedBox.shrink(),
-                            title: Text(email.address),
-                            subtitle: Text(
-                              _emailLabelToString[email.label] ?? 'Outro',
-                            ),
+                          return email.address != ""
+                            ? ListTile(
+                              leading:
+                                  index == 0
+                                      ? Icon(Icons.email_outlined, size: 26)
+                                      : const SizedBox.shrink(),
+                              title: Text(email.address),
+                              subtitle: Text(
+                                _emailLabelToString[email.label] ?? 'Outro',
+                              ),
 
-                            onTap: () async {
-                              final Uri uri = Uri(
-                                scheme: 'mailto',
-                                path: email.address,
-                              );
-                              if (await canLaunchUrl(uri)) {
-                                await launchUrl(
-                                  uri,
-                                  mode: LaunchMode.externalApplication,
+                              onTap: () async {
+                                final Uri uri = Uri(
+                                  scheme: 'mailto',
+                                  path: email.address,
                                 );
-                              } else {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Erro ao abrir o app de e-mail',
-                                      ),
-                                    ),
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
                                   );
+                                } else {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao abrir o app de e-mail',
+                                        ),
+                                      ),
+                                    );
+                                  }
                                 }
-                              }
-                            },
+                              },
 
-                            onLongPress: () {
-                              Clipboard.setData(
-                                ClipboardData(text: email.address),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "'${email.address}' copiado para a Área de Transferência",
+                              onLongPress: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: email.address),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "'${email.address}' copiado para a Área de Transferência",
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          );
+                                );
+                              },
+                            )
+                            : SizedBox.shrink();
                         }),
 
                         Visibility(
-                          visible: widget.contact.addresses.isNotEmpty,
+                          visible: hasvalidAddresses,
                           child: Divider(),
                         ),
                         // Endereços
